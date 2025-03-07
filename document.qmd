@@ -1,7 +1,7 @@
 # Load Data
 
 > Data source: [Badan Pusat Statistik Indonesia](https://www.bps.go.id/id/statistics-table/2/MTQ5OCMy/luas-panen--produksi--dan-produktivitas-padi-menurut-provinsi.html)
-
+> Cleaned Data: [Here](https://raw.githubusercontent.com/nurfianqodar/data-padi/refs/heads/main/data-padi.csv)
 
 ```{r}
 #| echo: false

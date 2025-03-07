@@ -1,0 +1,150 @@
+# Load Data
+
+> Data source: [Badan Pusat Statistik Indonesia](https://www.bps.go.id/id/statistics-table/2/MTQ5OCMy/luas-panen--produksi--dan-produktivitas-padi-menurut-provinsi.html)
+
+
+```{r}
+#| echo: false
+#| output: false
+library(tidyverse)
+library(knitr)
+```
+
+```{r}
+#| echo: false
+#| output: false
+raw_2018_2020 <- read_csv("./data/2018-2020.csv", skip = 4, col_names = FALSE)
+raw_2021_2023 <- read_csv("./data/2021-2023.csv", skip = 4, col_names = FALSE)
+raw_2024 <- read_csv("./data/2024.csv", skip = 4, col_names = FALSE)
+```
+
+```{r}
+#| echo: false
+#| output: false
+col_names <- c("province", "harvest_area", "productivity", "production")
+raw_2018_2020 <- raw_2018_2020 %>%
+    rename_with(~c("province",
+                  "harvest_area_2018",
+                  "harvest_area_2019",
+                  "harvest_area_2020",
+                  "productivity_2018",
+                  "productivity_2019",
+                  "productivity_2020",
+                  "production_2018",
+                  "production_2019",
+                  "production_2020"
+                  ), everything())
+
+raw_2021_2023 <- raw_2021_2023 %>%
+    rename_with(~c("province",
+                  "harvest_area_2021",
+                  "harvest_area_2022",
+                  "harvest_area_2023",
+                  "productivity_2021",
+                  "productivity_2022",
+                  "productivity_2023",
+                  "production_2021",
+                  "production_2022",
+                  "production_2023"
+                  ), everything())
+
+raw_2018 <- raw_2018_2020 %>%
+    select(province, harvest_area_2018, productivity_2018, production_2018) %>%
+    rename_with(~col_names, everything())
+
+raw_2019 <- raw_2018_2020 %>%
+    select(province, harvest_area_2019, productivity_2019, production_2019) %>%
+    rename_with(~col_names, everything())
+
+raw_2020 <- raw_2018_2020 %>%
+    select(province, harvest_area_2020, productivity_2020, production_2020) %>%
+    rename_with(~col_names, everything())
+
+raw_2021 <- raw_2021_2023 %>%
+    select(province, harvest_area_2021, productivity_2021, production_2021) %>%
+    rename_with(~col_names, everything())
+
+raw_2022 <- raw_2021_2023 %>%
+    select(province, harvest_area_2022, productivity_2022, production_2022) %>%
+    rename_with(~col_names, everything())
+
+raw_2023 <- raw_2021_2023 %>%
+    select(province, harvest_area_2023, productivity_2023, production_2023) %>%
+    rename_with(~col_names, everything())
+
+raw_2024 <- raw_2024 %>%
+    rename_with(~col_names, everything())
+```
+
+```{r}
+#| echo: false
+#| output: false
+standarize_type <- function(df, year) {
+    df <- df %>%
+        mutate(harvest_area = as.double(harvest_area),
+               productivity = as.double(productivity),
+               production = as.double(production),
+               year = as.integer(year))
+    return(df)
+}
+raw_2018 <- standarize_type(raw_2018, 2018)
+raw_2019 <- standarize_type(raw_2019, 2019)
+raw_2020 <- standarize_type(raw_2020, 2020)
+raw_2021 <- standarize_type(raw_2021, 2021)
+raw_2022 <- standarize_type(raw_2022, 2022)
+raw_2023 <- standarize_type(raw_2023, 2023)
+raw_2024 <- standarize_type(raw_2024, 2024)
+
+padi <- bind_rows(raw_2018,
+                  raw_2019,
+                  raw_2020,
+                  raw_2021,
+                  raw_2022,
+                  raw_2023,
+                  raw_2024) %>%
+        filter(province != "INDONESIA") %>%
+        mutate(harvest_area = harvest_area * 10000,
+               production = production * 1000,
+               productivity = productivity * 100)
+
+descript <- data.frame(
+    column_names = c("province",
+                     "harvest_area",
+                     "prductivity",
+                     "production",
+                     "year"),
+    description = c("Nama provinsi",
+                     "Luas lahan panen",
+                     "Produktivitas",
+                     "Produksi",
+                     "Tahun pendataan"),
+    unit = c("$-$",
+             "$m^2$",
+             "$kg/ha$",
+             "$kg$",
+             "$-$"),
+    data_type = c("char, not null",
+                  "double, nullable",
+                  "double, nullable",
+                  "double, nullable",
+                  "int, not null")
+    
+)
+```
+```{r}
+#| echo: false
+#| tbl-cap: Sample data luas panen, produksi, dan produktivitas
+kable(sample_n(padi, 10), escape = FALSE)
+
+```
+
+## Legend
+
+```{r}
+#| echo: false
+#| tbl-cap: Keterangan nama kolom tabel
+kable(descript, col.names = c("Nama Kolom",
+                              "Deskripsi",
+                              "Satuan",
+                              "Tipe Data"))
+```

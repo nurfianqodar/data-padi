@@ -130,12 +130,13 @@ descript <- data.frame(
                   "int, not null")
     
 )
+
+write_csv(padi, file = "data-padi.csv")
 ```
 ```{r}
 #| echo: false
 #| tbl-cap: Sample data luas panen, produksi, dan produktivitas
 kable(sample_n(padi, 10), escape = FALSE)
-
 ```
 
 ## Legend
